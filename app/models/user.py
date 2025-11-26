@@ -20,10 +20,17 @@ class EnderecoBase(SQLModel):
 class Pessoa(PessoaBase, table=True):
     """Modelo de tabela Pessoa no banco de dados."""
     id: int | None = Field(default=None, primary_key=True)
+    pai_id: int | None = Field(default=None, foreign_key="pessoa.id", index=True)
+    
     enderecos: List["Endereco"] = Relationship(
         back_populates="pessoa",
         sa_relationship_kwargs={"cascade": "all, delete-orphan"}
     )
+    pai: Optional["Pessoa"] = Relationship(
+        back_populates="filhos",
+        sa_relationship_kwargs={"remote_side": "Pessoa.id"}
+    )
+    filhos: List["Pessoa"] = Relationship(back_populates="pai")
     
 class Endereco(EnderecoBase, table=True):
     """Modelo de tabela Endereco no banco de dados."""
