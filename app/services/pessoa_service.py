@@ -9,7 +9,7 @@ class PessoaService(BaseService[Pessoa, PessoaCreate, PessoaUpdate]):
     """
     Service para operações relacionadas a Pessoa.
     Herda operações CRUD básicas do BaseService e sobrescreve apenas
-    métodos que requerem validações específicas (email único).
+    métodos que requerem validações específicas (email único, pai válido).
     """
     
     def __init__(self):
@@ -17,7 +17,7 @@ class PessoaService(BaseService[Pessoa, PessoaCreate, PessoaUpdate]):
     
     def criar(self, pessoa_data: PessoaCreate, session: Session) -> Pessoa:
         """
-        Sobrescreve criar() para adicionar validação de email único.
+        Sobrescreve criar() para adicionar validação de email único e pai válido.
         
         Args:
             pessoa_data: Dados da pessoa a ser criada
@@ -27,7 +27,7 @@ class PessoaService(BaseService[Pessoa, PessoaCreate, PessoaUpdate]):
             Pessoa criada
             
         Raises:
-            HTTPException: Se o email já estiver cadastrado
+            HTTPException: Se o email já estiver cadastrado ou pai não existir
         """
         # Validação específica: email único
         existing = session.exec(
@@ -39,6 +39,15 @@ class PessoaService(BaseService[Pessoa, PessoaCreate, PessoaUpdate]):
                 detail="Email já está cadastrado"
             )
         
+        # Validação específica: pai deve existir se informado
+        if pessoa_data.pai_id is not None:
+            pai = session.get(Pessoa, pessoa_data.pai_id)
+            if not pai:
+                raise HTTPException(
+                    status_code=400,
+                    detail="Pai informado não existe"
+                )
+        
         # Chama o método pai para criar
         return super().criar(pessoa_data, session)
     
@@ -49,7 +58,7 @@ class PessoaService(BaseService[Pessoa, PessoaCreate, PessoaUpdate]):
         session: Session
     ) -> Pessoa:
         """
-        Sobrescreve atualizar() para adicionar validação de email único.
+        Sobrescreve atualizar() para adicionar validação de email único e pai válido.
         
         Args:
             pessoa_id: ID da pessoa
@@ -60,7 +69,7 @@ class PessoaService(BaseService[Pessoa, PessoaCreate, PessoaUpdate]):
             Pessoa atualizada
             
         Raises:
-            HTTPException: Se o email já estiver em uso por outra pessoa
+            HTTPException: Se o email já estiver em uso por outra pessoa ou pai inválido
         """
         pessoa = self.buscar(pessoa_id, session)
         
@@ -74,6 +83,20 @@ class PessoaService(BaseService[Pessoa, PessoaCreate, PessoaUpdate]):
                 raise HTTPException(
                     status_code=400,
                     detail="Email já está em uso"
+                )
+        
+        # Validação específica: pai deve existir se informado
+        if pessoa_data.pai_id is not None:
+            if pessoa_data.pai_id == pessoa_id:
+                raise HTTPException(
+                    status_code=400,
+                    detail="Pessoa não pode ser seu próprio pai"
+                )
+            pai = session.get(Pessoa, pessoa_data.pai_id)
+            if not pai:
+                raise HTTPException(
+                    status_code=400,
+                    detail="Pai informado não existe"
                 )
         
         # Chama o método pai para atualizar

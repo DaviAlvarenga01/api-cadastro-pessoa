@@ -8,6 +8,7 @@ class PessoaCreate(SQLModel):
     nome: str = Field(min_length=3, max_length=200, description="Nome completo da pessoa")
     idade: int | None = Field(default=None, ge=0, le=150, description="Idade da pessoa")
     email: EmailStr = Field(description="Email válido e único")
+    pai_id: int | None = Field(default=None, gt=0, description="ID do pai (pessoa)")
     
     @field_validator('nome')
     @classmethod
@@ -23,6 +24,7 @@ class PessoaRead(SQLModel):
     nome: str
     idade: int | None = None
     email: str
+    pai_id: int | None = None
     enderecos: List['EnderecoRead'] = []
     
 class PessoaUpdate(SQLModel):
@@ -30,6 +32,7 @@ class PessoaUpdate(SQLModel):
     nome: str | None = Field(default=None, min_length=3, max_length=200)
     idade: int | None = Field(default=None, ge=0, le=150)
     email: EmailStr | None = None
+    pai_id: int | None = Field(default=None, gt=0, description="ID do pai (pessoa)")
     
     @field_validator('nome')
     @classmethod
