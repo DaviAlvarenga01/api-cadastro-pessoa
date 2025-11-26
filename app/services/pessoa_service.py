@@ -8,15 +8,16 @@ from app.services.base_service import BaseService
 class PessoaService(BaseService[Pessoa, PessoaCreate, PessoaUpdate]):
     """
     Service para operações relacionadas a Pessoa.
-    Herda operações CRUD básicas do BaseService e adiciona validações específicas.
+    Herda operações CRUD básicas do BaseService e sobrescreve apenas
+    métodos que requerem validações específicas (email único).
     """
     
     def __init__(self):
         super().__init__(Pessoa)
     
-    def criar_pessoa(self, pessoa_data: PessoaCreate, session: Session) -> Pessoa:
+    def criar(self, pessoa_data: PessoaCreate, session: Session) -> Pessoa:
         """
-        Cria uma nova pessoa com validação de email único.
+        Sobrescreve criar() para adicionar validação de email único.
         
         Args:
             pessoa_data: Dados da pessoa a ser criada
@@ -38,25 +39,17 @@ class PessoaService(BaseService[Pessoa, PessoaCreate, PessoaUpdate]):
                 detail="Email já está cadastrado"
             )
         
-        # Usa o método genérico do BaseService
-        return self.criar(pessoa_data, session)
+        # Chama o método pai para criar
+        return super().criar(pessoa_data, session)
     
-    def listar_pessoas(self, session: Session) -> list[Pessoa]:
-        """Lista todas as pessoas"""
-        return self.listar(session)
-    
-    def buscar_pessoa(self, pessoa_id: int, session: Session) -> Pessoa:
-        """Busca pessoa por ID"""
-        return self.buscar(pessoa_id, session)
-    
-    def atualizar_pessoa(
+    def atualizar(
         self, 
         pessoa_id: int, 
         pessoa_data: PessoaUpdate, 
         session: Session
     ) -> Pessoa:
         """
-        Atualiza uma pessoa com validação de email único.
+        Sobrescreve atualizar() para adicionar validação de email único.
         
         Args:
             pessoa_id: ID da pessoa
@@ -69,7 +62,7 @@ class PessoaService(BaseService[Pessoa, PessoaCreate, PessoaUpdate]):
         Raises:
             HTTPException: Se o email já estiver em uso por outra pessoa
         """
-        pessoa = self.buscar_pessoa(pessoa_id, session)
+        pessoa = self.buscar(pessoa_id, session)
         
         # Validação específica: email único ao atualizar
         if pessoa_data.email and pessoa_data.email != pessoa.email:
@@ -83,12 +76,8 @@ class PessoaService(BaseService[Pessoa, PessoaCreate, PessoaUpdate]):
                     detail="Email já está em uso"
                 )
         
-        # Usa o método genérico do BaseService
-        return self.atualizar(pessoa_id, pessoa_data, session)
-    
-    def deletar_pessoa(self, pessoa_id: int, session: Session) -> dict:
-        """Deleta uma pessoa"""
-        return self.deletar(pessoa_id, session)
+        # Chama o método pai para atualizar
+        return super().atualizar(pessoa_id, pessoa_data, session)
 
 
 # Instância singleton do service

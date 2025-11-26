@@ -19,13 +19,13 @@ def criar_endereco(endereco: EnderecoCreate, session: SessionDep):
     - **bairro**: Nome do bairro (mínimo 2 caracteres)
     - **cep**: CEP no formato 12345-678 ou 12345678 (opcional)
     """
-    return endereco_service.criar_endereco(endereco, session)
+    return endereco_service.criar(endereco, session)
 
 
 @router.get("/{endereco_id}", response_model=EnderecoRead)
 def buscar_endereco(endereco_id: int, session: SessionDep):
     """Busca um endereço específico por ID."""
-    return endereco_service.buscar_endereco(endereco_id, session)
+    return endereco_service.buscar(endereco_id, session)
 
 
 @router.put("/{endereco_id}", response_model=EnderecoRead)
@@ -35,10 +35,10 @@ def atualizar_endereco(endereco_id: int, endereco: EnderecoUpdate, session: Sess
     
     Todos os campos são opcionais - apenas os fornecidos serão atualizados.
     """
-    return endereco_service.atualizar_endereco(endereco_id, endereco, session)
+    return endereco_service.atualizar(endereco_id, endereco, session)
 
 
 @router.delete("/{endereco_id}", status_code=status.HTTP_200_OK)
 def deletar_endereco(endereco_id: int, session: SessionDep):
     """Deleta um endereço específico."""
-    return endereco_service.deletar_endereco(endereco_id, session)
+    return endereco_service.deletar(endereco_id, session)

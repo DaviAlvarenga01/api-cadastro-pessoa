@@ -17,19 +17,19 @@ def criar_pessoa(pessoa: PessoaCreate, session: SessionDep):
     - **idade**: Idade da pessoa (opcional, 0-150)
     - **email**: Email válido e único
     """
-    return pessoa_service.criar_pessoa(pessoa, session)
+    return pessoa_service.criar(pessoa, session)
 
 
 @router.get("", response_model=List[PessoaRead])
 def listar_pessoas(session: SessionDep):
     """Lista todas as pessoas cadastradas com seus endereços."""
-    return pessoa_service.listar_pessoas(session)
+    return pessoa_service.listar(session)
 
 
 @router.get("/{pessoa_id}", response_model=PessoaRead)
 def buscar_pessoa(pessoa_id: int, session: SessionDep):
     """Busca uma pessoa específica por ID."""
-    return pessoa_service.buscar_pessoa(pessoa_id, session)
+    return pessoa_service.buscar(pessoa_id, session)
 
 
 @router.put("/{pessoa_id}", response_model=PessoaRead)
@@ -39,7 +39,7 @@ def atualizar_pessoa(pessoa_id: int, pessoa: PessoaUpdate, session: SessionDep):
     
     Todos os campos são opcionais - apenas os fornecidos serão atualizados.
     """
-    return pessoa_service.atualizar_pessoa(pessoa_id, pessoa, session)
+    return pessoa_service.atualizar(pessoa_id, pessoa, session)
 
 
 @router.delete("/{pessoa_id}", status_code=status.HTTP_200_OK)
@@ -49,10 +49,10 @@ def deletar_pessoa(pessoa_id: int, session: SessionDep):
     
     ⚠️ Ação irreversível!
     """
-    return pessoa_service.deletar_pessoa(pessoa_id, session)
+    return pessoa_service.deletar(pessoa_id, session)
 
 
 @router.get("/{pessoa_id}/enderecos", response_model=List[EnderecoRead])
 def listar_enderecos_pessoa(pessoa_id: int, session: SessionDep):
     """Lista todos os endereços de uma pessoa específica."""
-    return endereco_service.listar_enderecos_pessoa(pessoa_id, session)
+    return endereco_service.listar_por_pessoa(pessoa_id, session)
